@@ -1,47 +1,59 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#define NMAX 30
 using namespace std;
 ofstream fout("regine.out");
-int n, NrSol, C[30];
-void Plaseaza_Regina(int);
+int nrLinii, nrColoane, nrSolutii, col[NMAX];
+void plaseazaRegina(int);
 int main()
 {
+	int n;
 	cout << "n = "; cin >> n;
-	Plaseaza_Regina(0);
+	nrLinii = nrColoane = n;
+	plaseazaRegina(0);
+	fout.close();
 	return 0;
 }
-void Afisare()
+void afiseazaSolutie()
 {
-	int i, j;
-	fout << "Solutia nr. " << ++NrSol << '\n';
-	for (i = 0; i < n; i++)
+	fout << "Solutia " << nrSolutii << '\n';
+	for (int linie = 0; linie < nrLinii; linie++)
 	{
-		for (j = 0; j < n; j++)
-			if (j == C[i]) fout << " * ";
-			else fout << " o ";
+		for (int coloana = 0; coloana < nrColoane; coloana++)
+			if (coloana == col[linie])
+				fout << " * ";
+			else
+				fout << " o ";
 		fout << '\n';
 	}
 	fout << '\n';
-	fout.close();
 }
-void Plaseaza_Regina(int k)
+bool potPlasaRegina(int linie, int coloana)
 {
-	// cand apelam functia Plaseaza_Regina cu parametrul k
-	// am plasat deja regine pe liniile 0,1,...,k-1
-	int i, j;
-	if (k == n) // am obtinut o solutie
-		Afisare(); // prelucrarea solutiei consta in afisare
-	else // trebuie sa mai plasam regine pe liniile k, k+1, ... , n-1
-		for (i = 0; i < n; i++)
+	for (int i = 0; i < linie; i++)
+	{
+		// exista deja o regina pe aceeasi coloana?
+		if (col[i] == coloana) return 0;
+		// exista deja o regina pe aceeasi diagonala?
+		if (abs(col[i]-coloana) == (linie-i)) return 0;
+	}
+	return 1;
+}
+void plaseazaRegina(int linie)
+{
+	if (linie == nrLinii)
+	{
+		nrSolutii++;
+		afiseazaSolutie();
+	}
+	else
+		for (int coloana = 0; coloana < nrColoane; coloana++)
 		{
-			// verific daca pot plasa regina de pe linia k in coloana i
-			for (j = 0; j < k; j++)
-				if (C[j] == i || abs(C[j]-i) == (k-j)) break;
-			if (j == k) // valoarea i respecta conditiile interne
+			if (potPlasaRegina(linie, coloana))
 			{
-				C[k] = i; // i este un candidat, il extrag imediat
-				Plaseaza_Regina(k+1);
+				col[linie] = coloana;
+				plaseazaRegina(linie+1);
 			}
 		}
 }
